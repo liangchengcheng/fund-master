@@ -1,0 +1,12 @@
+# 基金的详情数据
+http://fundf10.eastmoney.com/jbgk_003371.html
+# 基金行业的枚举
+http://fundf10.eastmoney.com/hypzsy_000001.html
+# 资产配置
+http://fundf10.eastmoney.com/zcpz_000001.html
+# 持仓
+http://fundf10.eastmoney.com/ccmx_000001.html
+# 集中率和换手率
+http://fundf10.eastmoney.com/ccbdzs_000001.html
+# 基金风险
+http://fundf10.eastmoney.com/tsdata_000001.html
