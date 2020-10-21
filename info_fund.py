@@ -8,9 +8,13 @@ from frame_net import *
 from config_url import *
 from frame_read import *
 from frame_solve import *
+from frame_sql_2 import *
+import uuid
+import csv
 
 """
-:param url: 基金概况信息的URL
+①: 获取基金的列表
+:param url: 基金概况信息的URL - 基金的列表
 :return: 将基金统计信息存入当前目录Data/fund_list.csv中,返回基金代码号列表
 """
 def get_fund_list():
@@ -23,7 +27,7 @@ def get_fund_list():
     type_list = []
     name_en_list = []
     tmp = re.findall(r"(\".*?\")", response)
-    for i in range(0,len(tmp)):
+    for i in range(0, len(tmp)):
         if i % 5 == 0:
             code_list.append(eval(tmp[i]))
         elif i % 5 == 1:
@@ -43,7 +47,28 @@ def get_fund_list():
     df.to_csv('data/fund_list.csv', encoding='UTF-8')
     return code_list
 
-
+"""
+① 保存基金的列表到数据库里面去
+: fund_info 表
+: fund_list.cvs
+"""
+def save_fund_list():
+    dbUtil = DBUtil()
+    df = pd.read_csv('data/fund_list.csv', encoding='UTF-8')
+    code = {}
+    name = {}
+    type = {}
+    name_en = {}
+    for i in range(len(df)):
+        code[i] = df["code"][i]
+        name[i] = df["name"][i]
+        type[i] = df["type"][i]
+        name_en[i] = df["name_en"][i]
+        id = uuid.uuid1()
+        code2 = '%06d' % code[i]
+        sql = "INSERT INTO fund_info(`id`, `code`, `name`, `type`, `name_en`) VALUES ('%s', '%s', '%s', '%s', '%s')" % (id, code2, name[i], type[i], name_en[i])
+        print(sql)
+        print("save执行结果：" + str(DBUtil.save(dbUtil, sql)))
 
 def get_fund_info(code):
     failed_list = []
@@ -55,19 +80,18 @@ def get_fund_info(code):
         return ''
     else:
         strs = re.findall(r'var(.*?);',response)
-        for i in range(0,len(strs)):
+        for i in range(0, len(strs)):
             tmp = strs[i].split('=')
             var_name = tmp[0].strip()
             data_list[var_name] = [tmp[1]]
         return data_list
 
-
 """
 :param url: 基金的基本面信息
 :return: 将基金统计信息存入当前目录Data/fund_list.csv中,返回基金代码号列表
-    股票仓位测算图 Data_fundSharesPositions
-    Data_netWorthTrend 单位净值走势 equityReturn-净值回报 unitMoney-每份派送金  Data_netWorthTrend
-    累计净值走势 Data_ACWorthTrend
+    股票仓位测算图 ->Data_fundSharesPositions
+    Data_netWorthTrend 单位净值走势 equityReturn-净值回报 unitMoney-每份派送金  ->Data_netWorthTrend
+    累计净值走势 -> Data_ACWorthTrend
 """
 def get_pingzhong_data():
     data = pd.read_csv('data/fund_list.csv', encoding='UTF-8')

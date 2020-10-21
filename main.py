@@ -8,6 +8,9 @@ from info_fund_jjjz import *
 if __name__ == '__main__':
     print("开始获取基金公司的列表的数据信息")
     # get_company_list()
+    # save_fund_list()
+    # get_company_list()
+    get_all_company_list()
     print("结束获取基金公司的列表的数据信息")
 
     print("开始获取基金的列表的数据信息")
@@ -33,4 +36,4 @@ if __name__ == '__main__':
 
     # download_risk_info()
 
-    download_fund_jingzhi_info()
+    # download_fund_jingzhi_info()
