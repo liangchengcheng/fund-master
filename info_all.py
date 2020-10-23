@@ -11,6 +11,8 @@ from frame_sql_2 import *
 
 """
  下载基金基本信息
+ http://fund.eastmoney.com/manager/default.html?rd=0.3588226733578517#dt14;mcreturnjson;ftall;pn50;pi1;scabbname;stasc
+ URL_JJJL = 'http://fund.eastmoney.com/Data/FundDataPortfolio_Interface.aspx?dt=14&mc=returnjson&ft=all&pn=50&sc=abbname&st=asc&pi='
 """
 def download_fund_base_info(page):
     dbUtil = DBUtil()
@@ -34,24 +36,33 @@ def download_fund_base_info(page):
         keydata = data_list["returnjson"]
         enddata = keydata[0]
         datas = re.findall(r'data:(.*?),record', enddata)
-        pages = re.findall(r'pages:(.*?),curpage', enddata)
-        curpage = re.findall(r'curpage:(.*?)}', enddata)
+        pages = re.findall(r'pages:(.*?),curpage', enddata)[0]
+        curpage = re.findall(r'curpage:(.*?)}', enddata)[0]
         arrsysdata = datas[0]
         listdata = eval(arrsysdata)
         for i in range(0, len(listdata)):
             onedata = listdata[i]
             code = onedata[0]
-            name = onedata[1]
-            createtime = onedata[2]
-            fundcount = onedata[3]
-            frdb = onedata[4]
-            enname = onedata[5]
-            gm = onedata[7]
-            pj = onedata[8]
-            simplename = onedata[9]
-            datatime = onedata[11]
+            leng1 = len(onedata)
+            va1 = onedata[leng1 -1]
+            print("save执行结果：")
+            managercode = onedata[0]
+            managername = onedata[1]
+            companycode = onedata[2]
+            companyname = onedata[3]
+            fundcodelist = onedata[4]
+            fundnamelist = onedata[5]
+            workdays = onedata[6]
+            dbjjhb = onedata[7]
+            ddjjcode = onedata[8]
+            ddjjname = onedata[9]
+            jjzgm = onedata[10]
+            zjhb = onedata[11]
             id = uuid.uuid1()
-            sql = "INSERT INTO fund_company_info(`id`, `code`, `name`, `createtime`, `fundcount`, `frdb`, `enname`, `gm`, `pj`, `simplename`, `datatime`) VALUES ('%s','%s','%s','%s', '%s','%s', '%s', '%s', '%s', '%s', '%s')" % (
-            id, code, name, createtime, fundcount, frdb, enname, gm, pj, simplename, datatime)
+            sql = "INSERT INTO fund_manager_info(`id`, `managercode`, `managername`, `companycode`, `companyname`, `fundcodelist`, `fundnamelist`, `workdays`, `dbjjhb`, `ddjjcode`, `ddjjname`,  `jjzgm`, `zjhb`) VALUES ('%s','%s','%s','%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+                id, managercode, managername, companycode, companyname, fundcodelist, fundnamelist, workdays, dbjjhb, ddjjcode, ddjjname, jjzgm, zjhb)
             print(sql)
             print("save执行结果：" + str(DBUtil.save(dbUtil, sql)))
+        curpage = int(curpage) + 1
+        if curpage < int(pages):
+            download_fund_base_info(str(curpage))
